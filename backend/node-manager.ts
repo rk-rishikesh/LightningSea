@@ -89,7 +89,7 @@ class NodeManager extends EventEmitter {
         await this.connect(host, cert, macaroon, token);
       } catch (error) {
         // the token will not be cached
-        console.error(`Failed to reconnect to LND node ${host} with token: ${token}`);
+       // console.error(`Failed to reconnect to LND node ${host} with token: ${token}`);
       }
     }
   }

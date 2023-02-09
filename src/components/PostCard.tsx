@@ -9,8 +9,29 @@ interface Props {
 }
 
 const PostCard: React.FC<Props> = ({ post }) => {
+  
+  const parseURL = async (url:any) => {
+    const data = await fetch(url);
+    const json = await data.json();
+    console.log(json);
+    return json;
+  };
+
+  const getProductImage = async (url:any) => {
+    let imageURL = await parseURL(url);
+    let image = imageURL.image;
+    image = image.toString();
+    return "https://ipfs.io/ipfs/" + image.slice(7);
+  };
+
   return (
-    <Card key={post.id} className="my-4">
+    <Card 
+      key={post.id} 
+      className="my-4" 
+      style={{
+      margin: '0px 0px 0px 20px',
+      borderRadius: '15px 15px 15px 15px',
+      }}>
       <Card.Body>
         <Card.Title>
           <strong>{post.title}</strong>
@@ -26,6 +47,21 @@ const PostCard: React.FC<Props> = ({ post }) => {
           )}
         </Card.Subtitle>
         <Card.Text>{post.content}</Card.Text>
+        {/* <Card.Img
+                    src={image.src}
+                    style={{
+                      width: '500px',
+                      height: '200px',
+                      borderRadius: '15px 15px 0px 0px',
+                    }}
+                  /> */}
+                  <Card.Title>
+                    <br />
+                    <strong>Post Title</strong>
+                  </Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    Post Description
+                  </Card.Subtitle>
       </Card.Body>
       <Card.Footer className="d-flex justify-content-between">
         <h5 className="mt-1">

@@ -16,8 +16,13 @@ const VoteButton: React.FC<Props> = ({ post }) => {
   }, [store, post]);
 
   return (
-    <Button variant="outline-primary" onClick={handleUpvoteClick}>
-      Upvote
+    <Button variant="outline-primary" onClick={handleUpvoteClick}                       style={{
+      backgroundColor: '#e20074',
+      border: 'none',
+      color:'white',
+      borderRadius: '15px 15px 15px 15px',
+    }}>
+      Buy
     </Button>
   );
 };

@@ -11,9 +11,9 @@ const PostList: React.FC = () => {
   if (store.posts.length === 0) {
     return (
       <Jumbotron style={{ backgroundColor: '#fff' }}>
-        <h1>Welcome to r/builders</h1>
+        <h1>My Wall</h1>
         <p className="lead">
-          It's a ghost town in here. Get the party started by creating the first post.
+         Ek post to hai nai tera bada aya muh utha ke
         </p>
         <p>
           <Button onClick={store.gotoCreate}>Create a Post</Button>

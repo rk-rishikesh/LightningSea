@@ -3,25 +3,49 @@ import { Alert, Badge, Container, Dropdown, Nav, Navbar, NavLink } from 'react-b
 import Confetti from 'react-confetti';
 import { observer } from 'mobx-react-lite';
 import Connect from './pages/Connect';
-import CreatePost from './pages/CreatePost';
+import Upload from './pages/Upload';
 import PostList from './pages/PostList';
 import { useStore } from './store/Provider';
+import Home from './pages/Home';
+import Browse from './pages/Browse';
+import Marketplace from './pages/MarketPlace';
+import Wall from './pages/Wall';
+
 
 function App() {
   const store = useStore();
 
   const pages: Record<string, ReactNode> = {
     posts: <PostList />,
-    create: <CreatePost />,
+    create: <Upload />,
     connect: <Connect />,
+    home: <Home />,
+    browse: <Browse />,
+    marketplace: <Marketplace />,
+    wall: <Wall />
   };
+
+  // Assumptions
+  //  1. BOB : Photographer
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" expand="md">
-        <Navbar.Brand onClick={store.gotoPosts}>
-          Builder's Guide to the LND Galaxy
+      <Navbar bg="dark" variant="dark" expand="md" >
+        <Navbar.Brand onClick={store.gotoHome}>
+          Lightning Sea
         </Navbar.Brand>
+        {store.alias == "bob" || store.alias =="alice"  ? (
+          <Nav className="me-auto">
+            <Nav.Link onClick={store.gotoCreate}>Create</Nav.Link>
+            <Nav.Link onClick={store.gotoWall}>My Wall</Nav.Link>
+          </Nav>
+        ) : (
+
+          <Nav className="me-auto"  >
+            <Nav.Link onClick={store.gotoBrowse}>Browse</Nav.Link>
+            <Nav.Link onClick={store.gotoMarketPlace}>Marketplace</Nav.Link>
+          </Nav>
+        )}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">
@@ -55,7 +79,18 @@ function App() {
               {store.error}
             </Alert>
           )}
-          {pages[store.page]}
+          {!store.connected ? (
+            <h1>
+              {pages[store.page]}
+            </h1>
+          ) : (
+            <>
+              {pages[store.page]}
+            </>
+
+          )
+          }
+          {/* {pages[store.page]} */}
         </div>
       </Container>
       <Confetti numberOfPieces={store.makeItRain ? 1000 : 0} />

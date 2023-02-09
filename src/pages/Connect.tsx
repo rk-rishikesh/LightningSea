@@ -19,7 +19,41 @@ const Connect: React.FC = () => {
   );
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <>
+    	{/* <div className="col s12 m5 login">
+					<h4 className="center">Log in</h4>
+					<br/>
+					<form action="" method="">
+						<div className="row">
+							<div className="input-field">
+								<input type="text" id="user" name="username" className="validate" required="required" placeholder="Username"/>
+                <label for="user">
+                  <i class="material-icons">person</i>                </label>
+							</div>	
+						</div>
+						<div class="row">
+							<div class="input-field">
+								<input type="password" id="pass" name="password" class="validate" required="required" placeholder="Password"/>
+								<label for="pass">
+                <i class="material-icons">lock</i>
+                </label>
+							</div>	
+						</div>
+						<div class="row">
+							<div class="switch col s6">
+								<label>
+									<input type="checkbox"/>
+									<span class="lever"></span>
+									Remember Me
+								</label>
+							</div>
+							<div class="col s6">
+								<button type="submit" name="login" class="btn waves-effect waves-light blue right">Log in</button>
+							</div>
+						</div>
+					</form>
+				</div> */}
+    <Form onSubmit={handleSubmit} style={{width:'700px',height:'200px',margin:'0px 0px 0px 180px'}} >
       <Card>
         <Card.Header>Connect Node</Card.Header>
         <Card.Body>
@@ -80,6 +114,7 @@ const Connect: React.FC = () => {
         </Card.Footer>
       </Card>
     </Form>
+    </>
   );
 };
 

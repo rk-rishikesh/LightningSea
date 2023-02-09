@@ -60,6 +60,7 @@ app.post('/api/posts/:id/verify', catchAsyncErrors(routes.verifyPost));
 app.ws('/api/events', ws => {
   // when a websocket connection is made, add listeners for posts and invoices
   const postsListener = (posts: Post[]) => {
+    console.log("1s")
     const event = { type: SocketEvents.postUpdated, data: posts };
     ws.send(JSON.stringify(event));
   };

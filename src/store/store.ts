@@ -14,7 +14,7 @@ export class Store {
   //
 
   // App state
-  page = 'posts';
+  page = 'home';
   error = '';
   connected = false;
   alias = '';
@@ -50,15 +50,17 @@ export class Store {
   //
   // Actions
   //
-
-  gotoPosts = () => (this.page = 'posts');
-  gotoCreate = () => (this.page = this.connected ? 'create' : 'connect');
+  gotoHome = () => (this.page = 'home');
+  gotoPosts = () => (this.page = this.connected ? 'posts' : "connect");
+  gotoCreate = () => (this.page = 'create');
   gotoConnect = () => (this.page = 'connect');
-
+  gotoBrowse = () => (this.page = 'browse');
+  gotoMarketPlace = () => (this.page = 'marketplace');
+  gotoWall = () => (this.page = this.connected ? 'wall' : 'wall');
   clearError = () => (this.error = '');
 
   init = async () => {
-    // try to fetch the node's info on startup
+    // try to fetch the node's info on startup{}
     try {
       await this.fetchInfo();
       this.connected = true;
@@ -85,7 +87,7 @@ export class Store {
       await api.connect(host, cert, macaroon);
       this.connected = true;
       this.fetchInfo();
-      this.gotoPosts();
+      this.gotoHome();
     } catch (err) {
       this.error = err.message;
     }
@@ -116,7 +118,7 @@ export class Store {
     this.clearError();
     try {
       await api.createPost(title, content);
-      this.gotoPosts();
+      this.gotoHome();
     } catch (err) {
       this.error = err.message;
     }
