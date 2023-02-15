@@ -21,7 +21,9 @@ export class Store {
   balance = 0;
   pubkey = '';
   makeItRain = false;
-
+  tarohost = '';
+  macaroon = '';
+  
   // PostList state
   posts: Post[] = [];
 
@@ -81,10 +83,11 @@ export class Store {
     ws.addEventListener('message', this.onSocketMessage);
   };
 
-  connectToLnd = async (host: string, cert: string, macaroon: string) => {
+  connectToLnd = async (host: string, tarohost: string, cert: string, macaroon: string) => {
     this.clearError();
     try {
-      await api.connect(host, cert, macaroon);
+      await api.connect(host, tarohost, cert, macaroon);
+      console.log("Connecting ...")
       this.connected = true;
       this.fetchInfo();
       this.gotoHome();
@@ -100,9 +103,12 @@ export class Store {
 
   fetchInfo = async () => {
     const info = await api.getInfo();
+    console.log(info);
     this.alias = info.alias;
     this.balance = parseInt(info.balance);
     this.pubkey = info.pubkey;
+    this.tarohost = info.tarohost;
+    this.macaroon = info.macaroon;
   };
 
   fetchPosts = async () => {

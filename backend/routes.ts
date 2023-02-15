@@ -6,9 +6,9 @@ import db from './posts-db';
  * POST /api/connect
  */
 export const connect = async (req: Request, res: Response) => {
-  const { host, cert, macaroon } = req.body;
-  const { token, pubkey } = await nodeManager.connect(host, cert, macaroon);
-  await db.addNode({ host, cert, macaroon, token, pubkey });
+  const { host, tarohost, cert, macaroon } = req.body;
+  const { token, pubkey } = await nodeManager.connect(host, tarohost, cert, macaroon);
+  await db.addNode({ host, tarohost, cert, macaroon, token, pubkey });
   res.send({ token });
 };
 
@@ -20,13 +20,15 @@ export const getInfo = async (req: Request, res: Response) => {
   if (!token) throw new Error('Your node is not connected!');
   // find the node that's making the request
   const node = db.getNodeByToken(token);
+  console.log("CHALL BEE", node);
   if (!node) throw new Error('Node not found with this token');
-
   // get the node's pubkey and alias
   const rpc = nodeManager.getRpc(node.token);
   const { alias, identityPubkey: pubkey } = await rpc.getInfo();
   const { balance } = await rpc.channelBalance();
-  res.send({ alias, balance, pubkey });
+  const tarohost = node.tarohost;
+  const macaroon = node.macaroon;
+  res.send({ alias, balance, pubkey, tarohost, macaroon });
 };
 
 /**

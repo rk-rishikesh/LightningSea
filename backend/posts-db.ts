@@ -7,6 +7,7 @@ const DB_FILE = 'db.json';
 export interface LndNode {
   token: string;
   host: string;
+  tarohost: string;
   cert: string;
   macaroon: string;
   pubkey: string;

@@ -60,11 +60,13 @@ export const getEventsSocket = () => {
   return new WebSocket(WS_URL);
 };
 
-export const connect = async (host: string, cert: string, macaroon: string) => {
-  const request = { host, cert, macaroon };
+export const connect = async (host: string, tarohost: string, cert: string, macaroon: string) => {
+  const request = { host, cert, macaroon, tarohost };
+  console.log("Request : ", request);
   const { token } = await httpPost('connect', request);
   // save the token into the browser's storage
   setToken(token);
+  console.log(token)
 };
 
 export const getInfo = async () => {

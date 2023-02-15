@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../src/index.css';
 
-function Loader() {
+function Minting() {
 
     return (
         <>
@@ -28,4 +28,4 @@ function Loader() {
     );
 };
 
-export default Loader;
+export default Minting;

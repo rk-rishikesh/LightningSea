@@ -32,6 +32,7 @@ const Wall: React.FC = () => {
         image = image.toString();
         return "https://ipfs.io/ipfs/" + image.slice(7);
     };
+    
 
 
     useEffect(() => {

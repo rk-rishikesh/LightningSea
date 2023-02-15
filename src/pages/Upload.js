@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store/Provider';
 import { NFTStorage } from 'nft.storage';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import IconButton from '@material-ui/core/IconButton';
@@ -13,6 +11,8 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Loader from './Loader';
+import Minting from './Minting';
+import {mintAsset, listAsset} from '../taro/taro.js';
 
 const theme = createTheme();
 
@@ -22,6 +22,7 @@ function Upload() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [minting, setMinting] = useState(false);
   const store = useStore();
 
   function inputPropertyImageHandler(e) {
@@ -76,12 +77,24 @@ function Upload() {
     uri = 'https://ipfs.io/ipfs/' + uri.slice(7);
 
     console.log('Token URI : ', uri);
+    console.log(store.tarohost);
+    console.log(store.macaroon);
 
-    store.createPost(title, uri);
+    let list = await listAsset(store.tarohost, store.macaroon);
+    console.log("BEFORE : ", list);
+    setMinting(true)
+    // const mintning = await mintAsset(store.tarohost, store.macaroon, title, uri);
+    // console.log("Minted NFT : ", mintning);
+    list = await listAsset(store.tarohost, store.macaroon);
+    console.log("AFTER", list);
+    setMinting(false)
+    //store.createPost(title, uri);
   };
 
   if (loading) {
     return <Loader/>;
+  } else if(minting) {
+    return <Minting/>;
   } else {
     return (
       <ThemeProvider theme={theme}>

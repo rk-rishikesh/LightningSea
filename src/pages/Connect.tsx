@@ -7,52 +7,25 @@ const Connect: React.FC = () => {
   const store = useStore();
 
   const [host, setHost] = useState('');
+  const [tarohost, setTaroHost] = useState('');
   const [cert, setCert] = useState('');
   const [macaroon, setMacaroon] = useState('');
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLElement>) => {
       e.preventDefault();
-      store.connectToLnd(host, cert, macaroon);
+      console.log(host)
+      console.log(tarohost)
+      console.log(cert)
+      console.log(host)
+
+      store.connectToLnd(host, tarohost, cert, macaroon);
     },
-    [host, cert, macaroon, store],
+    [host, tarohost, cert, macaroon, store],
   );
 
   return (
     <>
-    	{/* <div className="col s12 m5 login">
-					<h4 className="center">Log in</h4>
-					<br/>
-					<form action="" method="">
-						<div className="row">
-							<div className="input-field">
-								<input type="text" id="user" name="username" className="validate" required="required" placeholder="Username"/>
-                <label for="user">
-                  <i class="material-icons">person</i>                </label>
-							</div>	
-						</div>
-						<div class="row">
-							<div class="input-field">
-								<input type="password" id="pass" name="password" class="validate" required="required" placeholder="Password"/>
-								<label for="pass">
-                <i class="material-icons">lock</i>
-                </label>
-							</div>	
-						</div>
-						<div class="row">
-							<div class="switch col s6">
-								<label>
-									<input type="checkbox"/>
-									<span class="lever"></span>
-									Remember Me
-								</label>
-							</div>
-							<div class="col s6">
-								<button type="submit" name="login" class="btn waves-effect waves-light blue right">Log in</button>
-							</div>
-						</div>
-					</form>
-				</div> */}
     <Form onSubmit={handleSubmit} style={{width:'700px',height:'200px',margin:'0px 0px 0px 180px'}} >
       <Card>
         <Card.Header>Connect Node</Card.Header>
@@ -64,6 +37,15 @@ const Connect: React.FC = () => {
               value={host}
               placeholder="127.0.0.1:10001"
               onChange={e => setHost(e.target.value)}
+            />
+            </Form.Group>
+            <Form.Group controlId="tarohost">
+            <Form.Label>Taro Host</Form.Label>
+            <Form.Control
+              required
+              value={tarohost}
+              placeholder="localhost:8089"
+              onChange={e => setTaroHost(e.target.value)}
             />
           </Form.Group>
           <Form.Group controlId="cert">

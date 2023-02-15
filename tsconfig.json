@@ -14,7 +14,8 @@
     "isolatedModules": true,
     "useDefineForClassFields": true,
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "react",
+    
   },
   "include": ["src"]
 }
