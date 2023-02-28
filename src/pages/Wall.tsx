@@ -9,6 +9,7 @@ import { Badge, Card } from 'react-bootstrap';
 
 const Wall: React.FC = () => {
     const store = useStore();
+    
 
     const [postImage, setPostImage] = useState<String[]>([]);
     const [postDesc, setPostDesc] = useState<String[]>([]);
@@ -40,21 +41,24 @@ const Wall: React.FC = () => {
         const fetchData = async () => {
             let postImage: string[] = [];
             let postDesc: string[] = [];
-            for (var i = 0; i < store.posts.length; i++) {
-                if (store.posts[i].username == store.alias) {
+            console.log("Hello")
+            console.log(await store.sortedPosts);
+            for (var i = 0; i < store.sortedPosts.length; i++) {
+                const xxx = store.sortedPosts[i];
+                console.log(xxx);
+                if (store.posts[i].username === store.alias) {
+                    console.log(store.posts[i]);
                     const x = await getProductImage(store.posts[i].content)
                     const y = await getProductDescription(store.posts[i].content)
                     postImage.push(x)
                     postDesc.push(y)
                 }
             }
-
             console.log(postImage)
             setPostImage(postImage);
             setPostDesc(postDesc);
         }
         fetchData();
-
     }, [])
 
     return (

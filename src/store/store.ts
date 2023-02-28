@@ -113,18 +113,17 @@ export class Store {
 
   fetchPosts = async () => {
     this.clearError();
-    try {
+      console.log('Fetching posts...');
+      const postss = await api.fetchPosts();
+      console.log("Hello",postss);
       this.posts = await api.fetchPosts();
-    } catch (err) {
-      this.error = err.message;
-    }
   };
 
   createPost = async (title: string, content: string) => {
     this.clearError();
     try {
       await api.createPost(title, content);
-      this.gotoHome();
+      this.gotoWall();
     } catch (err) {
       this.error = err.message;
     }

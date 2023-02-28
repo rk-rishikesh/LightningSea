@@ -83,12 +83,12 @@ function Upload() {
     let list = await listAsset(store.tarohost, store.macaroon);
     console.log("BEFORE : ", list);
     setMinting(true)
-    // const mintning = await mintAsset(store.tarohost, store.macaroon, title, uri);
-    // console.log("Minted NFT : ", mintning);
+    const mintning = await mintAsset(store.tarohost, store.macaroon, title, uri);
+    console.log("Minted NFT : ", mintning);
     list = await listAsset(store.tarohost, store.macaroon);
     console.log("AFTER", list);
     setMinting(false)
-    //store.createPost(title, uri);
+    store.createPost(title, uri);
   };
 
   if (loading) {

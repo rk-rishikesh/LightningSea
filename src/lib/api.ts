@@ -74,6 +74,7 @@ export const getInfo = async () => {
 };
 
 export const fetchPosts = async () => {
+  console.log("Fetching posts");
   return await httpGet('posts');
 };
 

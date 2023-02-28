@@ -36,6 +36,7 @@ export const getInfo = async (req: Request, res: Response) => {
  */
 export const getPosts = (req: Request, res: Response) => {
   const posts = db.getAllPosts();
+  console.log(posts);
   res.send(posts);
 };
 
