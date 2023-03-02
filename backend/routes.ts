@@ -6,12 +6,11 @@ import db from './posts-db';
  * POST /api/connect
  */
 export const connect = async (req: Request, res: Response) => {
-  const { host, cert, macaroon } = req.body;
-  const { token, pubkey } = await nodeManager.connect(host, cert, macaroon);
-  await db.addNode({ host, cert, macaroon, token, pubkey });
+  const { host, tarohost, cert, macaroon } = req.body;
+  const { token, pubkey } = await nodeManager.connect(host, tarohost, cert, macaroon);
+  await db.addNode({ host, tarohost, cert, macaroon, token, pubkey });
   res.send({ token });
 };
-
 /**
  * GET /api/info
  */
@@ -20,13 +19,15 @@ export const getInfo = async (req: Request, res: Response) => {
   if (!token) throw new Error('Your node is not connected!');
   // find the node that's making the request
   const node = db.getNodeByToken(token);
+  console.log("CHALL BEE", node);
   if (!node) throw new Error('Node not found with this token');
-
   // get the node's pubkey and alias
   const rpc = nodeManager.getRpc(node.token);
   const { alias, identityPubkey: pubkey } = await rpc.getInfo();
   const { balance } = await rpc.channelBalance();
-  res.send({ alias, balance, pubkey });
+  const tarohost = node.tarohost;
+  const macaroon = node.macaroon;
+  res.send({ alias, balance, pubkey, tarohost, macaroon });
 };
 
 /**
@@ -41,7 +42,7 @@ export const getPosts = (req: Request, res: Response) => {
  * POST /api/posts
  */
 export const createPost = async (req: Request, res: Response) => {
-  const { token, title, content } = req.body;
+  const { token, title, description, content } = req.body;
   const rpc = nodeManager.getRpc(token);
 
   const { alias, identityPubkey: pubkey } = await rpc.getInfo();
@@ -50,7 +51,7 @@ export const createPost = async (req: Request, res: Response) => {
   // sign the message to obtain a signature
   const { signature } = await rpc.signMessage({ msg });
 
-  const post = await db.createPost(alias, title, content, signature, pubkey);
+  const post = await db.createPost(alias, title, description, content, signature, pubkey);
   res.status(201).send(post);
 };
 
@@ -81,6 +82,17 @@ export const upvotePost = async (req: Request, res: Response) => {
   res.send(post);
 };
 
+export const updatePostOwner = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { token, owner } = req.body;
+  // find the post
+  const post = db.getPostById(parseInt(id));
+  if (!post) throw new Error('Post not found');
+
+  db.updatePostOwner(owner, post.id);
+  res.send(post);
+};
+
 /**
  * POST /api/posts/:id/verify
  */
@@ -93,9 +105,6 @@ export const verifyPost = async (req: Request, res: Response) => {
   // find the node that's verifying this post
   const verifyingNode = db.getNodeByToken(token);
   if (!verifyingNode) throw new Error('Your node not found. Try reconnecting.');
-
-  if (post.pubkey === verifyingNode.pubkey)
-    throw new Error('You cannot verify your own posts!');
 
   const rpc = nodeManager.getRpc(verifyingNode.token);
   const msg = Buffer.from(post.content).toString('base64');

@@ -44,8 +44,9 @@ function Upload() {
         description: data.description,
         image: new File([file], file.name, { type: file.type }),
       });
-      console.log(metadata);
-      return metadata.url;
+      console.log(metadata.data.image.href);
+      const image = metadata.data.image.href;
+      return "https://ipfs.io/ipfs/" + image.slice(7);
     } catch (error) {
       console.error(error);
     } finally {
@@ -73,11 +74,7 @@ function Upload() {
   const listNFT = async event => {
     event.preventDefault();
     let uri = await uploadMetadata(title, description, propertyImage);
-    uri = 'https://ipfs.io/ipfs/' + uri.slice(7);
-
-    console.log('Token URI : ', uri);
-
-    store.createPost(title, uri);
+    store.createPost(title, description, uri);
   };
 
   if (loading) {
@@ -171,7 +168,8 @@ function Upload() {
                     backgroundColor: '#e20074',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '10px'
+                    borderRadius: '10px',
+                    fontSize:'20PX'
                   }}>
                   Generate NFT
                   </button>

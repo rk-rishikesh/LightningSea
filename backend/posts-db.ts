@@ -7,6 +7,7 @@ const DB_FILE = 'db.json';
 export interface LndNode {
   token: string;
   host: string;
+  tarohost: string;
   cert: string;
   macaroon: string;
   pubkey: string;
@@ -49,6 +50,7 @@ class PostsDb extends EventEmitter {
   async createPost(
     username: string,
     title: string,
+    description: string,
     content: string,
     signature: string,
     pubkey: string,
@@ -59,6 +61,7 @@ class PostsDb extends EventEmitter {
     const post: Post = {
       id: maxId + 1,
       title,
+      description,
       content,
       username,
       votes: 0,
@@ -66,6 +69,7 @@ class PostsDb extends EventEmitter {
       pubkey,
       verified: false,
     };
+    console.log("Posting ... ", post)
     this._data.posts.push(post);
 
     await this.persist();
@@ -83,12 +87,27 @@ class PostsDb extends EventEmitter {
     this.emit(PostEvents.updated, post);
   }
 
+  async updatePostOwner(owner: string, postId: number) {
+    const post = this._data.posts.find(p => p.id === postId);
+    if (!post) {
+      throw new Error('Post not found');
+    }
+    post.username = owner;
+    await this.persist();
+    this.emit(PostEvents.updated, post);
+  }
+
   async verifyPost(postId: number) {
     const post = this._data.posts.find(p => p.id === postId);
     if (!post) {
       throw new Error('Post not found');
     }
-    post.verified = true;
+    if(post.verified == false) {
+      post.verified = true;
+    } else {
+      post.verified = false;
+    }
+
     await this.persist();
     this.emit(PostEvents.updated, post);
   }

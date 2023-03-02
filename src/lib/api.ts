@@ -60,11 +60,13 @@ export const getEventsSocket = () => {
   return new WebSocket(WS_URL);
 };
 
-export const connect = async (host: string, cert: string, macaroon: string) => {
-  const request = { host, cert, macaroon };
+export const connect = async (host: string, tarohost: string, cert: string, macaroon: string) => {
+  const request = { host, cert, macaroon, tarohost };
+  console.log("Request : ", request);
   const { token } = await httpPost('connect', request);
   // save the token into the browser's storage
   setToken(token);
+  console.log(token)
 };
 
 export const getInfo = async () => {
@@ -75,9 +77,14 @@ export const fetchPosts = async () => {
   return await httpGet('posts');
 };
 
-export const createPost = async (title: string, content: string) => {
-  const request = { title, content };
+export const createPost = async (title: string, content: string, description: string) => {
+  const request = { title, description, content };
   return await httpPost('posts', request);
+};
+
+export const updatePostOwner = async (owner: string, postId: number) => {
+  const request = { owner };
+  return await httpPost(`posts/${postId}/update`, request);
 };
 
 export const createInvoice = async (postId: number) => {

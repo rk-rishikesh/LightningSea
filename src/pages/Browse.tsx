@@ -1,18 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Button, Jumbotron } from 'react-bootstrap';
 import { observer } from 'mobx-react-lite';
-import '../../src/index.css';
-import Button from 'react-bootstrap/Button';
+import PayModal from '../components/PayModal';
+import PostCard from '../components/PostCard';
 import { useStore } from '../store/Provider';
 import { Badge, Card } from 'react-bootstrap';
 
 const Browse: React.FC = () => {
-
     const store = useStore();
+
+    const handleVerify = ((post: any) => {
+        console.log(post)
+        store.verifyPost(post.id);
+    });
 
     const [postImage, setPostImage] = useState<String[]>([]);
     const [postDesc, setPostDesc] = useState<String[]>([]);
-    const [showPhotograpghers, setShowPhotographers] = useState('Photographer');
-    const [loading, setLoading] = useState(false);
+    const [postId, setPostId] = useState<number[]>([]);
+    const [missedCount, setMissedCount] = useState(0);
 
     const parseURL = async (url: any) => {
         const data = await fetch(url);
@@ -35,134 +40,154 @@ const Browse: React.FC = () => {
         return "https://ipfs.io/ipfs/" + image.slice(7);
     };
 
-    const handleSubscribe = useCallback(async (name: String) => {
-        setLoading(true);
 
-        let postImage: string[] = [];
-        let postDesc: string[] = [];
+    useEffect(() => {
 
-        for (var i = 0; i < store.posts.length; i++) {
-            if (store.posts[i].username == name) {
-                const x = await getProductImage(store.posts[i].content)
-                const y = await getProductDescription(store.posts[i].content)
-                postImage.push(x)
-                postDesc.push(y)
+        const fetchData = async () => {
+            let postImage: string[] = [];
+            let postDesc: string[] = [];
+            let postId: number[] = [];
+            let missedCount = 0;
+
+            for (var i = 0; i < store.posts.length; i++) {
+                if (store.posts[i].username == store.alias) {
+                    const x = await getProductImage(store.posts[i].content)
+                    const y = await getProductDescription(store.posts[i].content)           
+                    postImage.push(x)
+                    postDesc.push(y)
+                    postId.push(i + 1)
+                } else {
+                    missedCount = missedCount + 1;
+                }
+
             }
 
-            console.log(postImage)
+            console.log(postImage);
+            console.log(postDesc);
+            console.log(postId)
+            console.log(missedCount);
+            setPostId(postId);
             setPostImage(postImage);
             setPostDesc(postDesc);
-            console.log(name)
-            setShowPhotographers(name.toString());
-         
+            setMissedCount(missedCount);
         }
-        setLoading(false);
-    }, [store]);
+        fetchData();
 
-    const artImage = [
-        {
-            imageName: 'bob',
-            src: 'https://openseauserdata.com/files/c65186f3c0d04a070b0fb72863381350.jpg',
-        },
-        {
-            imageName: 'alice',
-            src: 'https://www.rangefinderonline.com/wp-content/uploads/2021/10/thumbnail_IMG_4548-2.jpg',
-        },
-        {
-            imageName: 'carol',
-            src: 'https://www.artnews.com/wp-content/uploads/2021/08/BAYC-8746.png?w=631',
-        },
-    ];
+    }, [])
 
-    if(loading) {
-        return <h1>Loading</h1>
-    } else {
-        return (
-            <>
-                <div>
-                    <img
-                        className="coverImg"
-                        src="https://bafkreicih4tuusc4ddhaqs6ivm6bqcw55nwys74cnterlgnpe437kds2fy.ipfs.nftstorage.link"
-                    />
-                </div>
-                <div>
-                    <hr />
-                    <h3 className="heading" style={{ color: '#e20074', fontSize: '40px', fontFamily: 'serif' }}>{showPhotograpghers}'s Zone</h3>
-                    <hr />
-                </div>
-    <div className='row'>
-                {showPhotograpghers != 'Photographer' ?
-                    (
-                        <>
-                            {store.sortedPosts.map(post => (
-                                <>
-                                    {postImage.length != 0 && postDesc.length != 0 &&
-                                        <Card
-                                            key={post.id}
-                                            className="my-4"
+    return (
+        <>
+            <div>
+                <hr />
+                <h3
+                    className="heading"
+                    style={{ color: '#e20074', fontSize: '40px', fontFamily: 'serif' }}
+                >
+                    My Browse
+                </h3>
+                <hr />
+            </div>
+            <div className='row'>
+
+                {postImage.length == 0 && postDesc.length == 0 && <>
+                    <>
+                        <div>  <img
+                            src="https://uploads-ssl.webflow.com/5fa27c3574b213fae018d63e/61db77ae62249315c10cf2d3_animation_500_kxszguql.gif"
+                            style={{ marginLeft: "93%", borderRadius: "50%", width: "25%", marginTop: "7%" }}
+                        /></div>
+
+
+
+                        <div><label style={{ margin: '40px 0px 0px 380px' }}>No Posts Found ! Create your first post now !</label> <br />
+                            <button onClick={store.gotoCreate}
+                                style={{
+                                    width: '200px',
+                                    height: '40px',
+                                    backgroundColor: '#e20074',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    margin: '60px 0px 0px 430px'
+                                }}>
+                                Create Post
+                            </button></div>
+                    </>
+                </>}
+                {store.sortedPosts.map(post => (
+
+                    <>
+                        {postImage.length != 0 && postDesc.length != 0 && postId.includes(post.id) &&
+                        
+                            <>
+                                <Card
+                                    key={post.id}
+                                    className="my-4"
+                                    style={{
+                                        margin: '0px 0px 0px 20px',
+                                        borderRadius: '15px 15px 15px 15px',
+                                        width: '545px'
+                                    }}>
+                                    <Card.Body>
+
+                                        <Card.Img
+                                            src={postImage[post.id - (missedCount + 1)].toString()}
                                             style={{
-                                                margin: '0px 0px 0px 20px',
-                                                borderRadius: '15px 15px 15px 15px',
-                                                width: '545px'
-                                            }}>
-                                            <Card.Body>
-    
-                                             
-                                               
-                                                <Card.Img
-                                                    src={postImage[post.id - 1].toString()}
+                                                width: '500px',
+                                                height: '200px',
+                                                borderRadius: '15px 15px 0px 0px',
+                                            }}
+                                        />
+                                        <br />
+                                        <br />
+                                        <Card.Title>
+                                            <strong>{post.title}</strong>
+                                        </Card.Title>
+                                        <Card.Subtitle className="mb-2 text-muted">
+                                            {postDesc[post.id - (missedCount + 1)].toString()}
+                                        </Card.Subtitle>
+                                    </Card.Body>
+                                    {console.log("Here", post.id)}
+                                    <Card.Footer className="d-flex justify-content-between">
+                                        <h6>Owner : {post.username.toUpperCase()}</h6>
+                                        {post.verified &&
+                                            <span>
+                                                <Button variant="outline-primary"
                                                     style={{
-                                                        width: '500px',
-                                                        height: '200px',
-                                                        borderRadius: '15px 15px 0px 0px',
+                                                        backgroundColor: '#e20074',
+                                                        border: 'none',
+                                                        color: 'white',
+                                                        borderRadius: '15px 15px 15px 15px',
                                                     }}
-                                                />
-                                                    <br />
-                                                    <br />
-                                                    <Card.Title>
-                                                        <strong>{post.title}</strong>
-                                                    </Card.Title>
-                                                    <Card.Subtitle className="mb-2 text-muted">
-                                                        {postDesc[post.id - 1].toString()}
-                                                    </Card.Subtitle>
-    
-                                            </Card.Body>
-                                            {console.log(postImage)}
-    
-    
-                                            <Card.Footer className="d-flex justify-content-between">
-                                                <h6>Creator : {post.username.toUpperCase()}</h6>
-                                            </Card.Footer>
-    
-    
-                                        </Card>
-                                    }
-                                </>
-                            ))}
-    
-                        </>
-                    ) :
-                    (
-                        <>
-                            <div className="row">
-                                {artImage.map((image: any) => {
-                                    return (
-                                        <div className='column' >
-    
-                                            <img className="browseImg" src={image.src}></img><br />
-                                            <Button style={{ margin: '0px 0px 0px 165px', backgroundColor: '#e20074', border: 'none' }} onClick={() => handleSubscribe(image.imageName)}>Subscribe {image.imageName}</Button>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </>
-                    )
-                }
-    </div>
-            </>
-        );
-    }
+                                                    onClick={() => { handleVerify(post) }}>
+                                                    Listed
+                                                </Button>
+                                            </span>
+                                        }
+                                        {!post.verified &&
+                                            <span>
+                                                <Button variant="outline-primary"
+                                                    style={{
+                                                        backgroundColor: '#e20074',
+                                                        border: 'none',
+                                                        color: 'white',
+                                                        borderRadius: '15px 15px 15px 15px',
+                                                    }}
+                                                    onClick={() => { handleVerify(post) }}>
+                                                    List on Marketplace
+                                                </Button>
+                                            </span>
+                                        }
 
+                                    </Card.Footer>
+                                </Card>
+                            </>
+                        }
+                    </>
+                ))}
+            </div>
+            {store.showPayModal && <PayModal />}
+        </>
+    );
 };
 
 export default observer(Browse);

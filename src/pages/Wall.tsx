@@ -1,56 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button, Jumbotron } from 'react-bootstrap';
 import { observer } from 'mobx-react-lite';
 import PayModal from '../components/PayModal';
 import PostCard from '../components/PostCard';
 import { useStore } from '../store/Provider';
 import { Badge, Card } from 'react-bootstrap';
-
+import Loader from './Loader';
 
 const Wall: React.FC = () => {
     const store = useStore();
+    console.log(store)
 
-    const [postImage, setPostImage] = useState<String[]>([]);
-    const [postDesc, setPostDesc] = useState<String[]>([]);
-    const parseURL = async (url: any) => {
-        const data = await fetch(url);
-        const json = await data.json();
-        console.log(json);
-        return json;
-    };
+    const [postCount, setPostCount] = useState(0);
 
-    const getProductDescription = async (url: any) => {
-        let metadata = await parseURL(url);
-        let desc = metadata.description;
-        desc = desc.toString();
-        return desc;
-    }
-
-    const getProductImage = async (url: any) => {
-        let imageURL = await parseURL(url);
-        let image = imageURL.image;
-        image = image.toString();
-        return "https://ipfs.io/ipfs/" + image.slice(7);
-    };
-
+    const handleVerify = ((postId: any) => {
+        console.log(postId + 1)
+        store.verifyPost(postId + 1);
+    });
 
     useEffect(() => {
-
         const fetchData = async () => {
-            let postImage: string[] = [];
-            let postDesc: string[] = [];
+            var count = 0;
+            console.log("Loading ...", store.posts.length)
             for (var i = 0; i < store.posts.length; i++) {
-                if (store.posts[i].username == store.alias) {
-                    const x = await getProductImage(store.posts[i].content)
-                    const y = await getProductDescription(store.posts[i].content)
-                    postImage.push(x)
-                    postDesc.push(y)
-                }
-            }
 
-            console.log(postImage)
-            setPostImage(postImage);
-            setPostDesc(postDesc);
+                if (store.posts[i].username == store.alias) {
+                    count = count + 1;
+                }
+
+            }
+            setPostCount(count);
         }
         fetchData();
 
@@ -62,94 +41,115 @@ const Wall: React.FC = () => {
                 <hr />
                 <h3
                     className="heading"
-                    style={{ color: '#e20074', fontSize: '40px', fontFamily: 'serif' }}
+                    style={{ marginLeft: "38%", color: '#e20074', fontSize: '40px', fontFamily: 'serif' }}
                 >
-                    My Wall
+                    {store.alias.toUpperCase()}'S WALL
                 </h3>
                 <hr />
             </div>
-            <div className='row'>
-
-                {postImage.length == 0 && postDesc.length == 0 && <>
+            <div className='' >
+                {postCount == 0 ? (
                     <>
-                        <div>  <img
-                            src="https://uploads-ssl.webflow.com/5fa27c3574b213fae018d63e/61db77ae62249315c10cf2d3_animation_500_kxszguql.gif"
-                            style={{ marginLeft: "93%", borderRadius: "50%", width: "25%", marginTop: "7%" }}
-                        /></div>
+                        <div className='row' style={{ display: 'contents', textAlign: 'center' }}>
+                            <div className='col'><img
+                                src="https://uploads-ssl.webflow.com/5fa27c3574b213fae018d63e/61db77ae62249315c10cf2d3_animation_500_kxszguql.gif"
+                                style={{ borderRadius: "50%", width: "25%", marginBottom: '30px' }}
+                            /></div>
 
-
-
-                        <div><label style={{ margin: '40px 0px 0px 380px' }}>No Posts Found ! Create your first post now !</label> <br />
-                            <button onClick={store.gotoCreate}
-                                style={{
-                                    width: '200px',
-                                    height: '40px',
-                                    backgroundColor: '#e20074',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    margin: '60px 0px 0px 430px'
-                                }}>
-                                Create Post
-                            </button></div>
-                    </>
-                </>}
-                {store.sortedPosts.map(post => (
-
-                    <>
-                        {postImage.length != 0 && postDesc.length != 0 &&
-                            <>
-                                <Card
-                                    key={post.id}
-                                    className="my-4"
+                            <div className='col'>
+                                <label style={{ fontSize: '25px' }}>No Posts Found ! Create your first post now !</label> <br />
+                            </div><div className='col' style={{ margin: '30px 0px 0px 0px' }}>
+                                <button onClick={store.gotoCreate}
                                     style={{
-                                        margin: '0px 0px 0px 20px',
-                                        borderRadius: '15px 15px 15px 15px',
-                                        width: '545px'
+                                        width: '200px',
+                                        height: '40px',
+                                        backgroundColor: '#e20074',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        fontSize: '20px'
                                     }}>
-                                    <Card.Body>
-
-                                        <Card.Img
-                                            src={postImage[post.id - 1].toString()}
-                                            style={{
-                                                width: '500px',
-                                                height: '200px',
-                                                borderRadius: '15px 15px 0px 0px',
-                                            }}
-                                        />
-                                        <br />
-                                        <br />
-                                        <Card.Title>
-                                            <strong>{post.title}</strong>
-                                        </Card.Title>
-                                        <Card.Subtitle className="mb-2 text-muted">
-                                            {postDesc[post.id - 1].toString()}
-                                        </Card.Subtitle>
-
-
-                                    </Card.Body>
-                                    {console.log(postImage)}
-                                    <Card.Footer className="d-flex justify-content-between">
-                                        <h6>Creator : {post.username.toUpperCase()}</h6>
-                                        <span>
-                                            <Button variant="outline-primary"
+                                    Create Post
+                                </button></div>
+                        </div></>
+                ) : (<div className='row'>
+                    {store.posts.map(function (item, index) {
+                        return (
+                        <>
+                            {store.posts[index].username == store.alias &&
+                                <>
+                                {console.log(store.posts[index].content)}
+                                    {<Card
+                                        key={index}
+                                        className="my-4"
+                                        style={{
+                                            margin: '0px 0px 0px 20px',
+                                            borderRadius: '15px 15px 15px 15px',
+                                            width: '545px'
+                                        }}>
+                                        <Card.Body>
+                                            
+                                            <Card.Img
+                                                src={store.posts[index].content}
                                                 style={{
-                                                    backgroundColor: '#e20074',
-                                                    border: 'none',
-                                                    color: 'white',
-                                                    borderRadius: '15px 15px 15px 15px',
-                                                }}>
-                                                List on Marketplace
-                                            </Button>
-                                        </span>
-                                    </Card.Footer>
-                                </Card>
-                            </>
+                                                    width: '500px',
+                                                    height: '200px',
+                                                    borderRadius: '15px 15px 0px 0px',
+                                                }}
+                                            />
+                                            
+                                            <br />
+                                            <br />
+                                            <Card.Title>
+                                                <strong>{store.posts[index].title}</strong>
+                                            </Card.Title>
+                                            <Card.Subtitle className="mb-2 text-muted">
+                                                {store.posts[index].description.toString()}
+                                            </Card.Subtitle>
+                                        </Card.Body>
+
+                                        <Card.Footer className="d-flex justify-content-between">
+                                            <h6>Owner : {store.posts[index].username}</h6>
+                                            {store.posts[index].verified &&
+                                                <span>
+                                                    <Button variant="outline-primary"
+                                                        style={{
+                                                            backgroundColor: '#e20074',
+                                                            border: 'none',
+                                                            color: 'white',
+                                                            borderRadius: '15px 15px 15px 15px',
+                                                        }}
+                                                        onClick={() => { handleVerify(index) }}>
+                                                        Unlist from Marketplace
+                                                    </Button>
+                                                </span>
+                                            }
+                                            {!store.posts[index].verified &&
+                                                <span>
+                                                    <Button variant="outline-primary"
+                                                        style={{
+                                                            backgroundColor: '#e20074',
+                                                            border: 'none',
+                                                            color: 'white',
+                                                            borderRadius: '15px 15px 15px 15px',
+                                                        }}
+                                                        onClick={() => { handleVerify(index) }}>
+                                                        List on Marketplace
+                                                    </Button>
+                                                </span>
+                                            }
+                                        </Card.Footer>
+                                    </Card>}
+                                </>
+                            }
+                        </>)
+
+                    }
+                    )}</div>)
+
+                }
 
 
-                        }
-                    </>
-                ))}
             </div>
             {store.showPayModal && <PayModal />}
         </>

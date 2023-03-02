@@ -3,17 +3,6 @@ import '../../src/index.css';
 
 function Loader() {
 
-    const [message, setMessage] = useState("Uploading Metadata on IPFS");
-
-
-    const changeMessage = () => {
-        setInterval(() => {
-            setMessage("Generating NFT");
-        }, 10000)
-    }
-
-    changeMessage();
-    
     return (
         <>
             <div className="text-center">
@@ -32,8 +21,7 @@ function Loader() {
                 <br/>
                 <br/>
                 <br/>
-                
-                <h6 >{message}</h6>
+            
             </div>
         </>
     );

@@ -34,18 +34,14 @@ function App() {
         <Navbar.Brand onClick={store.gotoHome}>
           Lightning Sea
         </Navbar.Brand>
-        {store.alias == "bob" || store.alias =="alice"  ? (
-          <Nav className="me-auto">
-            <Nav.Link onClick={store.gotoCreate}>Create</Nav.Link>
-            <Nav.Link onClick={store.gotoWall}>My Wall</Nav.Link>
-          </Nav>
-        ) : (
 
-          <Nav className="me-auto"  >
-            <Nav.Link onClick={store.gotoBrowse}>Browse</Nav.Link>
+          <Nav className="me-auto">
+          <Nav.Link onClick={store.gotoWall}>My Wall</Nav.Link>
+            <Nav.Link onClick={store.gotoCreate}>Create</Nav.Link>
             <Nav.Link onClick={store.gotoMarketPlace}>Marketplace</Nav.Link>
+
           </Nav>
-        )}
+
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto">
@@ -61,7 +57,7 @@ function App() {
                   </Badge>
                 </Navbar.Text>
                 <Dropdown id="basic-nav-dropdown" alignRight>
-                  <Dropdown.Toggle as={NavLink}>{store.alias}</Dropdown.Toggle>
+                  <Dropdown.Toggle as={NavLink} style={{color:"white"}}>Hello, {store.alias.toUpperCase()} !!</Dropdown.Toggle>
                   <Dropdown.Menu>
                     <Dropdown.Item onClick={store.disconnect}>Disconnect</Dropdown.Item>
                   </Dropdown.Menu>

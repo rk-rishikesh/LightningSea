@@ -21,6 +21,8 @@ export class Store {
   balance = 0;
   pubkey = '';
   makeItRain = false;
+  tarohost = '';
+  macaroon = '';
 
   // PostList state
   posts: Post[] = [];
@@ -55,7 +57,7 @@ export class Store {
   gotoCreate = () => (this.page = 'create');
   gotoConnect = () => (this.page = 'connect');
   gotoBrowse = () => (this.page = 'browse');
-  gotoMarketPlace = () => (this.page = 'marketplace');
+  gotoMarketPlace = () => (this.page = this.connected ? 'marketplace' : "connect");
   gotoWall = () => (this.page = this.connected ? 'wall' : 'wall');
   clearError = () => (this.error = '');
 
@@ -81,10 +83,11 @@ export class Store {
     ws.addEventListener('message', this.onSocketMessage);
   };
 
-  connectToLnd = async (host: string, cert: string, macaroon: string) => {
+  connectToLnd = async (host: string, tarohost: string, cert: string, macaroon: string) => {
     this.clearError();
     try {
-      await api.connect(host, cert, macaroon);
+      await api.connect(host, tarohost, cert, macaroon);
+      console.log("Connecting ...")
       this.connected = true;
       this.fetchInfo();
       this.gotoHome();
@@ -100,9 +103,12 @@ export class Store {
 
   fetchInfo = async () => {
     const info = await api.getInfo();
+    console.log(info);
     this.alias = info.alias;
     this.balance = parseInt(info.balance);
     this.pubkey = info.pubkey;
+    this.tarohost = info.tarohost;
+    this.macaroon = info.macaroon;
   };
 
   fetchPosts = async () => {
@@ -114,11 +120,38 @@ export class Store {
     }
   };
 
-  createPost = async (title: string, content: string) => {
+   parseURL = async (url: any) => {
+    console.log("parsing")
+    const data = await fetch(url);
+    const json = await data.json();
+    console.log(json);
+    return json;
+};
+
+  getProductDescription = async (url: any) => {
+    console.log("getting description")
+    let metadata = await this.parseURL(url);
+    let desc = metadata.description;
+    desc = desc.toString();
+    return desc;
+  }
+
+  getProductImage = async (url: any) => {
+    console.log("getting image")
+    let imageURL = await this.parseURL(url);
+    let image = imageURL.image;
+    image = image.toString();
+    return "https://ipfs.io/ipfs/" + image.slice(7);
+  };
+
+  createPost = async (title: string, description: string, uri: string) => {
     this.clearError();
+
     try {
-      await api.createPost(title, content);
-      this.gotoHome();
+      console.log("Store.ts : createPost")
+      console.log(title, description, uri);
+      await api.createPost(title, uri, description);
+      this.gotoWall();
     } catch (err) {
       this.error = err.message;
     }
@@ -129,9 +162,22 @@ export class Store {
     try {
       if (!this.pmtForPost) throw new Error('No post selected to upvote');
       await api.upvotePost(this.pmtForPost.id, this.pmtHash);
-      this.pmtSuccessMsg = `Your payment of ${this.pmtAmount} sats to ${this.pmtForPost.username} was successful! The post has been upvoted!`;
+      this.pmtSuccessMsg = `Your payment of ${this.pmtAmount} sats to ${this.pmtForPost.username} was successful! You are the new owner`;
+      this.gotoWall();
     } catch (err) {
       this.pmtError = err.message;
+    }
+  };
+
+  updatePostNewOwner = async (owner:string, postId: number) => {
+    this.clearError();
+    try {
+      console.log(postId)
+      const post = await api.updatePostOwner(owner, postId);
+      this._updatePost(post);
+      this.verifyPost(postId);
+    } catch (err) {
+      this.error = err.message;
     }
   };
 
@@ -140,6 +186,7 @@ export class Store {
     try {
       const post = await api.verifyPost(postId);
       this._updatePost(post);
+      this.gotoMarketPlace();
     } catch (err) {
       this.error = err.message;
     }

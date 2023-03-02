@@ -29,7 +29,7 @@ class NodeManager extends EventEmitter {
   /**
    * Tests the LND node connection by validating that we can get the node's info
    */
-  async connect(host: string, cert: string, macaroon: string, prevToken?: string) {
+  async connect(host: string, tarohost: string, cert: string, macaroon: string, prevToken?: string) {
     // generate a random token, without
     const token = prevToken || uuidv4().replace(/-/g, '');
 
@@ -83,10 +83,10 @@ class NodeManager extends EventEmitter {
    */
   async reconnectNodes(nodes: LndNode[]) {
     for (const node of nodes) {
-      const { host, cert, macaroon, token } = node;
+      const { host, tarohost, cert, macaroon, token } = node;
       try {
         console.log(`Reconnecting to LND node ${host} for token ${token}`);
-        await this.connect(host, cert, macaroon, token);
+        await this.connect(host, tarohost, cert, macaroon, token);
       } catch (error) {
         // the token will not be cached
        // console.error(`Failed to reconnect to LND node ${host} with token: ${token}`);
